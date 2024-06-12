@@ -1,5 +1,13 @@
 # Benchmarking_Calorimeter_Shower_Simulation_Generative_AI
 
+## Directory structure
+
+- The main evaluation scripts (and helper modules) to generate plots and various metrics are at the top level.
+- The 'xml_binning_files' folder contains the binning file in XML needed to run the evaluation scripts.
+- The 'trained_models' folder contains the pre-trained models, including CaloDiffusion, CaloScore, CaloINN and Geant4, for each dataset.
+
+## Running the evaluation scripts
+
 1. To generate Sparsity, Center of Energy, Shower width, voxel distribution, and E_ratio plots, run the following commands:
 
 ```
