@@ -1,4 +1,4 @@
-# Benchmarking_Calorimeter_Shower_Simulation_Generative_AI
+# A Comprehensive Evaluation of Generative Models in Calorimeter Shower Simulation
 
 * samples in a folder is saved as dataset_n_particle_model.h5 where n stands for the dataset number, partcile stands for type of particle e.g. electron, photon and pion and model stands for CaloDiffusion, CaloScore, CaloINN and Geant4. In our code we assume that samples are saved in this manner in a folder and based on that we read from a path. Upon request we can share our generated samples with the reviewers. We could not upload them now due to the file size constraints.
 
