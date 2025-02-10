@@ -16,11 +16,12 @@
 
 To plot the Frobenius norm of the computed Pearson correlation coefficient as a bar plot, run the following command:
 
-```bash
+```
 python pearson_frob.py -m voxel -d 2 -p bar_plot -dp PATH_TO_SAMPLES -o PATH_TO_STORE_RESULTS
-
+```
 
 To plot the intermediate correlation matrices for mode voxel and layer as a heatmap, run the following command:
 
-```bash
+```
 python pearson_frob.py -m voxel -d 2 -p heatmap -dp PATH_TO_SAMPLES -o PATH_TO_STORE_RESULTS
+```
