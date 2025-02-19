@@ -5,6 +5,14 @@
 - matplotlib
 - scipy
 - seaborn
+
+A suitable python environment named eval can be created and activated with:
+```
+python -m venv eval
+source eval/bin/activate
+pip install -r requirements.txt
+
+```
 ## Dataset
 You can access the dataset here: [Dataset on Zenodo](https://zenodo.org/records/14883798).
 
