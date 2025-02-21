@@ -66,5 +66,17 @@ python correlate.py -i 'path_to_model_sampple_file' -r 'path_to_reference_sample
 python classifier_auc_jsd.py --input_file 'path_to_input_file' --reference_file 'path_to_reference_file' --dataset_num '[1-photons, 1-pions, 2, 3]' --mode '[cls-low, clow-low-normed, cls-high]' --binning_file 'xml_binning_files/file_name'
 ```
 
+6. To plot the Frobenius norm of the computed Pearson correlation coefficient as a bar plot, run the following command:
+
+```
+python pearson_frob.py -m voxel -d 2 -p bar_plot -dp PATH_TO_SAMPLES -o PATH_TO_STORE_RESULTS
+```
+
+To plot the intermediate correlation matrices for mode voxel and layer as a heatmap, run the following command:
+
+```
+python pearson_frob.py -m voxel -d 2 -p heatmap -dp PATH_TO_SAMPLES -o PATH_TO_STORE_RESULTS
+```
+
 Note: The samples in a given folder are saved with specific naming convension. Specifically, dataset_n_particle_model.h5, where n stands for the dataset number, partcile stands for type of particle, e.g., electron, and model stands for CaloDiffusion, CaloScore, CaloINN or Geant4. In our evaluation scripts, we assume the saved samples follow this naming convension and based on that we read from the path. Upon request we can share our generated samples with the reviewers. We could not upload them now due to the file size constraints.
 
