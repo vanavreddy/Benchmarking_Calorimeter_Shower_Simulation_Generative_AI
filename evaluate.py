@@ -7,14 +7,15 @@ https://github.com/CaloChallenge/homepage/blob/main/code/
 
 
 
+import os
+import re
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
-import os
+from datetime import datetime
 from scipy.stats import pearsonr
 import HighLevelFeatures as HLF
 from utils import *
-import re
 from matplotlib import gridspec
 from scipy.stats import wasserstein_distance
 from evaluate_metrics_helper import *
@@ -148,7 +149,7 @@ def parse_arguments():
                         default='/project/bi_dsc_community/calorimeter/calorimeter_evaluation_data/dataset_2/',
                         help='path to generated h5/hdf5 files are stored')
     parser.add_argument('--output_dir',type=str,
-                        default='results/')
+                        default='results')
     parser.add_argument('--binning_file', type=str, required=False, 
                         default='binning_dataset_2.xml',
                         help='path to binning file')
@@ -182,6 +183,23 @@ def parse_arguments():
     parser.add_argument('--sep_file_path',type=str, help='path to file of separation and emd score')
 
     args = parser.parse_args()
+
+    directory_path = args.output_dir
+
+    if os.path.isdir(directory_path):
+        # Get the current date and time
+        now = datetime.now()
+        # Format the date and time as a string
+        formatted_date_time = now.strftime("%Y_%m_%d_%H_%M_%S")
+        new_dir = args.output_dir + "_" +formatted_date_time
+        os.rename(args.output_dir, new_dir)
+        os.mkdir(directory_path)
+
+        print(f"The results directory '{directory_path}' exists. Relocating this directory to {new_dir}.")
+
+    else:
+        os.mkdir(directory_path)
+
     return args
     
 def evaluate_metrics_ds_2_3(Es, Showers, HLFs, model_names, files, args):
