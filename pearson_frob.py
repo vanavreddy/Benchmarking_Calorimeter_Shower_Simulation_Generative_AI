@@ -352,8 +352,3 @@ if __name__ == '__main__':
                           
     main(args.dataset_path,args.dataset,args.output_dir, args.mode, args.plot)
     
-        
-        
-        
-        
-        
