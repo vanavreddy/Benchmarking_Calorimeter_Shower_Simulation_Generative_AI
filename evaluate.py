@@ -11,6 +11,8 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+import sys
 from scipy.stats import pearsonr
 import HighLevelFeatures as HLF
 from utils import *
@@ -182,6 +184,18 @@ def parse_arguments():
     parser.add_argument('--sep_file_path',type=str, help='path to file of separation and emd score')
 
     args = parser.parse_args()
+
+    default_output_dir = 'results'
+    current_datetime = datetime.now()
+    current_time = current_datetime.strftime("%Y_%m_%d_%H_%M_%S")
+    save_output_dir = default_output_dir + '_' + str(current_time)
+
+    if os.path.isdir(default_output_dir):
+        os.rename(default_output_dir, save_output_dir)
+        os.mkdir(default_output_dir)
+    else:
+        os.mkdir(default_output_dir)
+
     return args
     
 def evaluate_metrics_ds_2_3(Es, Showers, HLFs, model_names, files, args):
