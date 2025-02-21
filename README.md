@@ -6,6 +6,28 @@
 - The 'xml_binning_files' folder contains the binning file in XML needed to run the evaluation scripts.
 - The 'trained_models' folder contains the pre-trained models, including CaloDiffusion, CaloScore, CaloINN and Geant4, for each dataset.
 
+## List of Metrics
+Below are the list of metrics to compare the performance of various models. For a detailed explanation of the metrics and how to compare, please 
+refer to our paper https://arxiv.org/pdf/2406.12898
+
+1. Histograms of physics observables
+   - Layer wise energy distribution
+   - Center of energy in η and φ direction
+   - Shower width in η and φ direction
+   - Sparsity
+3. Correlations
+   - Pearson Correlation Coefficient
+   - Frobenius Norm
+5. Classifier tests
+   - Area Under Curve (AUC)
+   - Jensen-Shannon divergence (JSD)
+7. Scores
+   - Earth Mover’s Distance (EMD)
+   - Fréchet Physics Distances(FPD)
+   - Kernel Physics Distances(KPD)
+9. Separation power
+10. Training and Evaluation time
+
 ## Running the evaluation scripts
 
 1. To generate Sparsity, Center of Energy, Shower width, voxel distribution, and E_ratio plots, run the following commands:
