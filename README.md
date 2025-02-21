@@ -12,39 +12,37 @@
 
 ```
 # Dataset 1(photon)
-python evaluate.py --binning_file 'path_to_binning_file' --dataset_path 'path_to_dataset_path' --dataset_num 1 --particle_type 'photon' --metrics 'all' --row 1 --col 2
+python evaluate.py --metrics 'all' --binning_file 'xml_binning_files/file_name' --dataset_path 'path_to_dataset_path' --dataset_num 1 --particle_type 'photon' --row 1 --col 2
 
 # Dataset 1 (pion):
-python evaluate.py --binning_file 'path_to_binning_file' --dataset_path 'path_to_dataset_path' --dataset_num 1 --particle_type 'pion' --metrics 'all' --row 2 --col 2
+python evaluate.py --metrics 'all' --binning_file 'xml_binning_files/file_name' --dataset_path 'path_to_dataset_path' --dataset_num 1 --particle_type 'pion' --row 2 --col 2
 
 # Dataset 2 and 3:
-python evaluate.py --binning_file 'path_to_binning_file' --dataset_path 'path_to_dataset_path' --dataset_num '[2, 3]' --particle_type 'electron' --metrics 'all' --row 3 --col 3
+python evaluate.py --metrics 'all' --binning_file 'xml_binning_files/file_name' --dataset_path 'path_to_dataset_path' --dataset_num '[2, 3]' --particle_type 'electron' --row 3 --col 3
 ```
 
 2. To generate the plots for separation_power or EMD, run the following commands:
 
 ```
-python evaluate.py --metrics 'sep' --dataset_num n --particle_type 'type_of_particles' --sep_file_path 'path_to_separation.txt generated after running previous command (1)'
+python evaluate.py --metrics 'sep' --dataset_num '[1, 2, 3]' --particle_type 'type_of_particles' --sep_file_path 'path_to_separation.txt generated after running previous command (1)'
 
-python evaluate.py --metrics 'emd' --dataset_num n --particle_type 'type_of_particles' --sep_file_path 'path_to_separation.txt generated after running previous command (1)'
+python evaluate.py --metrics 'emd' --dataset_num '[1, 2, 3]' --particle_type 'type_of_particles' --sep_file_path 'path_to_separation.txt generated after running previous command (1)'
 ```
 
 3. To generate FPD and KPD scores, run the following commands:
 ```
-python evaluate.py --binning_file ‘path_to_binning_file’ --dataset_path ‘path_to_dataset_path’ --dataset_num 'dataset_num' --particle_type ‘electron’ --metrics ‘fpd-kpd’ 
+python evaluate.py --metrics ‘fpd-kpd’ --binning_file ‘path_to_binning_file’ --dataset_path ‘path_to_dataset_path’ --dataset_num 'dataset_num' --particle_type ‘electron’ 
 ```
 
 4. To generate correlation plots similar to the ones publised in the paper, run the following command:
 ```
-python correlate.py -i 'path_to_model_sampple_file' -r 'path_to_reference_sample_file' -m 'corr' -n 'model_name' -d 'dataset_num'
+python correlate.py -i 'path_to_model_sampple_file' -r 'path_to_reference_sample_file' -m 'corr' -n 'model_name' --dataset_num '[1-photons, 1-pions, 2, 3]'
 ```
 
 5. To generate AUC and JSD scores, run the following command:
 ```
-python classifier_auc_jsd.py --input_file 'path_to_input_file' --reference_file 'path_to_reference_file' --dataset 'dataset_num' --mode '[cls-low, clow-low-normed, cls-high]' --binning_file 'path_to_binning_file'
+python classifier_auc_jsd.py --input_file 'path_to_input_file' --reference_file 'path_to_reference_file' --dataset_num '[1-photons, 1-pions, 2, 3]' --mode '[cls-low, clow-low-normed, cls-high]' --binning_file 'xml_binning_files/file_name'
 ```
 
 Note: The samples in a given folder are saved with specific naming convension. Specifically, dataset_n_particle_model.h5, where n stands for the dataset number, partcile stands for type of particle, e.g., electron, and model stands for CaloDiffusion, CaloScore, CaloINN or Geant4. In our evaluation scripts, we assume the saved samples follow this naming convension and based on that we read from the path. Upon request we can share our generated samples with the reviewers. We could not upload them now due to the file size constraints.
 
-TEST
-TEST2
