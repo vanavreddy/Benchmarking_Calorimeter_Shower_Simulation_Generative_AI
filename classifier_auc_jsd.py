@@ -20,7 +20,7 @@
                    'cls-low': trains a classifier on low-level features (voxels).
                    'cls-low-normed': trains a classifier on normalized voxels.
                    'cls-high': trains a classifier on high-level features (same as histograms).
-        -d --dataset: Which dataset the evaluation is for. Choices are
+        -d --dataset_num: Which dataset the evaluation is for. Choices are
                       '1-photons', '1-pions', '2', '3'
            --output_dir: Folder in which the evaluation results (plots, scores) are saved.
            --save_mem: If included, data is moved to the GPU batch by batch instead of once.
@@ -81,7 +81,7 @@ parser.add_argument('--mode', '-m', default='all',
                           "'cls-high' trains a classifier on the high-level features;" +\
                           "'all' does the full evaluation, ie all of the above" +\
                           " with low-level classifier."))
-parser.add_argument('--dataset', '-d', choices=['1-photons', '1-pions', '2', '3'],
+parser.add_argument('--dataset_num', '-d', choices=['1-photons', '1-pions', '2', '3'],
                     help='Which dataset is evaluated.')
 parser.add_argument('--output_dir', default='results/',
                     help='Where to store evaluation output files (plots and scores).')
@@ -216,7 +216,7 @@ def ttv_split(data1, data2, split=np.array([0.6, 0.2, 0.2])):
 
 def load_classifier(constructed_model, parser_args):
     """ loads a saved model """
-    filename = parser_args.mode + '_' + parser_args.dataset + '.pt'
+    filename = parser_args.mode + '_' + parser_args.dataset_num + '.pt'
     checkpoint = torch.load(os.path.join(parser_args.output_dir, filename),
                             map_location=parser_args.device)
     constructed_model.load_state_dict(checkpoint['model_state_dict'])
@@ -238,7 +238,7 @@ def train_and_evaluate_cls(model, data_train, data_test, optim, arg):
             if eval_acc > best_eval_acc:
                 best_eval_acc = eval_acc
                 arg.best_epoch = i+1
-                filename = arg.mode + '_' + arg.dataset + '.pt' 
+                filename = arg.mode + '_' + arg.dataset_num + '.pt' 
                 torch.save({'model_state_dict':model.state_dict()},
                            os.path.join(arg.output_dir, filename))
             if eval_acc == 1.:
@@ -323,7 +323,7 @@ def evaluate_cls(model, data_test, arg, final_eval=False, calibration_data=None)
         prob_true, prob_pred = calibration_curve(result_true, rescaled_pred, n_bins=10)
         print("rescaled calibration curve:", prob_true, prob_pred)
         # calibration was done after sigmoid, therefore only BCELoss() needed here:
-        if arg.dataset == '3' and args.mode == 'cls-high':
+        if arg.dataset_num == '3' and args.mode == 'cls-high':
             result_true = np.float32(result_true) 
         BCE = torch.nn.BCELoss()(torch.tensor(rescaled_pred), torch.tensor(result_true))
         JSD = - BCE.cpu().numpy() + np.log(2.)
@@ -362,7 +362,7 @@ def check_file(given_file, arg, which=None):
     """ checks if the provided file has the expected structure based on the dataset """
     print("Checking if {} file has the correct form ...".format(
         which if which is not None else 'provided'))
-    num_features = {'1-photons': 368, '1-pions': 533, '2': 6480, '3': 40500}[arg.dataset]
+    num_features = {'1-photons': 368, '1-pions': 533, '2': 6480, '3': 40500}[arg.dataset_num]
     num_events = given_file['incident_energies'].shape[0]
     assert given_file['showers'].shape[0] == num_events, \
         ("Number of energies provided does not match number of showers, {} != {}".format(
@@ -400,7 +400,7 @@ def save_reference(ref_hlf, fname):
 
 def plot_histograms(hlf_class, reference_class, arg):
     """ plots histograms based with reference file as comparison """
-    if arg.dataset=='2' or '3':
+    if arg.dataset_num == '2' or '3':
         plot_E_group_layers(hlf_class, reference_class,arg)
     plot_Etot_Einc(hlf_class, reference_class, arg)
     plot_E_layers(hlf_class, reference_class, arg)
@@ -408,7 +408,7 @@ def plot_histograms(hlf_class, reference_class, arg):
     plot_ECPhis(hlf_class, reference_class, arg)
     plot_ECWidthEtas(hlf_class, reference_class, arg)
     plot_ECWidthPhis(hlf_class, reference_class, arg)
-    if arg.dataset[0] == '1':
+    if arg.dataset_num[0] == '1':
         plot_Etot_Einc_discrete(hlf_class, reference_class, arg)
         
 def plot_test(hlf_class,reference_class,arg):
@@ -420,9 +420,9 @@ def plot_test(hlf_class,reference_class,arg):
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    if args.dataset in ['1-photons', '1-pions', '2']:
+    if args.dataset_num in ['1-photons', '1-pions', '2']:
         torch.set_default_dtype(torch.float64) 
-    elif args.dataset == '3' and args.mode == 'cls-high':
+    elif args.dataset_num == '3' and args.mode == 'cls-high':
         torch.set_default_dtype(torch.float64) 
     else:
         torch.set_default_dtype(torch.float32)
@@ -435,10 +435,10 @@ if __name__ == '__main__':
     check_file(source_file, args, which='input')
 
     particle = {'1-photons': 'photon', '1-pions': 'pion',
-                '2': 'electron', '3': 'electron'}[args.dataset]
+                '2': 'electron', '3': 'electron'}[args.dataset_num]
     # minimal readout per voxel, ds1: from Michele, ds2/3: 0.5 keV / 0.033 scaling factor
     args.min_energy = {'1-photons': 10e-3, '1-pions': 10e-3,
-                       '2': 0.5e-6/0.033, '3': 0.5e-6/0.033}[args.dataset]
+                       '2': 0.5e-6/0.033, '3': 0.5e-6/0.033}[args.dataset_num]
 
     hlf = HLF.HighLevelFeatures(particle,
                                 #filename='binning_dataset_{}.xml'.format(
@@ -463,7 +463,7 @@ if __name__ == '__main__':
         print("Computing .pkl reference")
         reference_hlf = HLF.HighLevelFeatures(particle,
                                               filename='binning_dataset_{}.xml'.format(
-                                                  args.dataset.replace('-', '_')))
+                                                  args.dataset_num.replace('-', '_')))
         reference_hlf.Einc = reference_energy
         save_reference(reference_hlf,
                        os.path.join(args.source_dir, args.reference_file_name + '.pkl'))
@@ -483,7 +483,7 @@ if __name__ == '__main__':
         hlf.DrawAverageShower(shower,
                               filename=os.path.join(args.output_dir,
                                                     'average_shower_dataset_{}.png'.format(
-                                                        args.dataset)),
+                                                        args.dataset_num)),
                               title="Shower average")
         if hasattr(reference_hlf, 'avg_shower'):
             pass
@@ -495,13 +495,13 @@ if __name__ == '__main__':
                               filename=os.path.join(
                                   args.output_dir,
                                   'reference_average_shower_dataset_{}.png'.format(
-                                      args.dataset)),
+                                      args.dataset_num)),
                               title="Shower average reference dataset")
         print("Plotting average shower: DONE.\n")
 
     if args.mode in ['all', 'avg-E']:
         print("Plotting average showers for different energies ...")
-        if '1' in args.dataset:
+        if '1' in args.dataset_num:
             target_energies = 2**np.linspace(8, 23, 16)
             plot_title = ['shower average at E = {} MeV'.format(int(en)) for en in target_energies]
         else:
@@ -510,7 +510,7 @@ if __name__ == '__main__':
             for i in range(3, 7):
                 plot_title.append('shower average for E in [{}, {}] MeV'.format(10**i, 10**(i+1)))
         for i in range(len(target_energies)-1):
-            filename = 'average_shower_dataset_{}_E_{}.png'.format(args.dataset,
+            filename = 'average_shower_dataset_{}_E_{}.png'.format(args.dataset_num,
                                                                    target_energies[i])
             which_showers = ((energy >= target_energies[i]) & \
                              (energy < target_energies[i+1])).squeeze()
@@ -551,7 +551,7 @@ if __name__ == '__main__':
         print("Calculating high-level features for histograms: DONE.\n")
 
         if args.mode in ['all', 'hist-chi', 'hist']:
-            with open(os.path.join(args.output_dir, 'histogram_chi2_{}.txt'.format(args.dataset)),
+            with open(os.path.join(args.output_dir, 'histogram_chi2_{}.txt'.format(args.dataset_num)),
                       'w') as f:
                 f.write('List of chi2 of the plotted histograms,'+\
                         ' see eq. 15 of 2009.03796 for its definition.\n')
@@ -634,7 +634,7 @@ if __name__ == '__main__':
         print("Final result of classifier test (AUC / JSD):") 
         print("{:.4f} / {:.4f}".format(model_name, eval_auc, eval_JSD)) 
         with open(os.path.join(args.output_dir, 'classifier_{}_{}.txt'.format(args.mode, 
-                                                                              args.dataset)), 
+                                                                              args.dataset_num)), 
 										'a') as f:
             f.write('Final result of classifier test (AUC / JSD):\n'+\
                     '{} {:.4f} / {:.4f}\n\n'.format(model_name, eval_auc, eval_JSD))

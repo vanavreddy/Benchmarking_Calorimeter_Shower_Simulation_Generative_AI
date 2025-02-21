@@ -25,7 +25,7 @@ parser.add_argument('--mode', '-m', default='corr',choices=['corr','corr_dual','
                           "bob will call bar on bar which focuses one particular layer's correlation with all other layers"+\
                          "bbb will call bar by bar same as bob except the presentation is different."))
 
-parser.add_argument('--dataset', '-d', choices=['1-photons', '1-pions', '2', '3'],
+parser.add_argument('--dataset_num', '-d', choices=['1-photons', '1-pions', '2', '3'],
                     help='Which dataset is evaluated.')
 parser.add_argument('--output_dir', default='evaluation_results/',
                     help='Where to store evaluation output files (plots and scores).')
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     
     ref_Einc,ref_shower=file_read(args.reference_file)
     
-    if args.dataset=='2':
+    if args.dataset_num == '2':
         
         shape=[-1,45,16,9,1]
         gen_layers=process_layer_sum(gen_shower,shape)
@@ -101,14 +101,14 @@ if __name__ == '__main__':
         print(np.where(gen_layers==0))
         ref_layers=process_layer_sum(ref_shower,shape)
         
-    elif args.dataset=='3':
+    elif args.dataset_num == '3':
         
         shape=[-1,45,50,18,1]
         gen_layers=process_layer_sum(gen_shower,shape)
         print(np.where(gen_layers==0))
         ref_layers=process_layer_sum(ref_shower,shape)
         
-    elif args.dataset=='1-photons':
+    elif args.dataset_num == '1-photons':
         
         gen_layers=l2l_photon(gen_shower)
         ref_layers=l2l_photon(ref_shower)
@@ -125,13 +125,13 @@ if __name__ == '__main__':
     ref_corr,ref_p=calculateCorrelation(ref_layers)
     
     if args.mode=='corr':
-        file_name=f"l2l_corr_gen_DS_{args.dataset}_model_{args.model_name}_B1.pdf"
-        data_name=f"dataset_{args.dataset}"
+        file_name=f"l2l_corr_gen_DS_{args.dataset_num}_model_{args.model_name}_B1.pdf"
+        data_name=f"dataset_{args.dataset_num}"
         draw_heatmap(gen_corr,os.path.join(args.output_dir,file_name),data_name,width=10,height=8,
                      XTICK_SIZE=24,YTICK_SIZE=24,XLABEL_SIZE=32,YLABEL_SIZE=32,LEGEND_SIZE=20)
         
-        file_name=f"l2l_corr_Geant4_DS_{args.dataset}.pdf"
-        data_name=f"dataset_{args.dataset}"
+        file_name=f"l2l_corr_Geant4_DS_{args.dataset_num}.pdf"
+        data_name=f"dataset_{args.dataset_num}"
         draw_heatmap(ref_corr,file_name,data_name,width=10,height=8,
                     XTICK_SIZE=24,YTICK_SIZE=24,XLABEL_SIZE=32,YLABEL_SIZE=32,LEGEND_SIZE=20)
         
@@ -141,9 +141,9 @@ if __name__ == '__main__':
             gen_corr_=gen_corr[i:i+5,:].T
             ref_corr_=ref_corr[i:i+5,:].T
             custom_xticks=list(range(i,i+5,1))
-            fname=f"dual_heatmap_layer_{i}_to_layer_{i+4}_dataset_{args.dataset}_model_{args.model_name}.pdf"
+            fname=f"dual_heatmap_layer_{i}_to_layer_{i+4}_dataset_{args.dataset_num}_model_{args.model_name}.pdf"
             draw_heatmap_dual(gen_corr_,ref_corr_,os.path.join(args.output_dir,fname),\
-                              f"{args.model_name}_DS_{args.dataset}",f"Geant4_DS_{args.dataset}",custom_xticks)
+                              f"{args.model_name}_DS_{args.dataset_num}",f"Geant4_DS_{args.dataset_num}",custom_xticks)
             
     elif args.mode=='bob':
         print("not implemented")
