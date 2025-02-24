@@ -19,8 +19,13 @@ from scipy.stats import wasserstein_distance
 import math
 import pandas as pd
 
-
-def plot_cell_dist(shower_arr,min_energy,dataset,output_dir, particle,model_names, width=8,height=5,TITLE_SIZE=30
+#can't find it from utils
+def write_dict_to_txt(dictionary, filename):
+    # helper function to write a dictionary to a .txt file
+    with open(filename, 'w') as file:
+        for key, value in dictionary.items():
+            file.write(f"{key}: {value}\n")
+def plot_cell_dist(shower_arr,min_energy,dataset,output_dir, particle,model_names, model_to_color_dict, width=8,height=5,TITLE_SIZE=30
                    ,XLABEL_SIZE=25,YLABEL_SIZE=25,YMAX=1,ratio = False,LEGEND_SIZE=24,XTICK_SIZE=30,YTICK_SIZE=30):
     """ plots voxel energies across all layers """
     x_scale='log'
@@ -90,7 +95,7 @@ def plot_cell_dist(shower_arr,min_energy,dataset,output_dir, particle,model_name
 
     
     
-def plot_Etot_Einc_new(HLFs,dataset,output_dir, particle, model_names, ratio = False,row=1,col=1,height=6,width=8,YMAX=100,
+def plot_Etot_Einc_new(HLFs,dataset,output_dir, particle, model_names, model_to_color_dict, ratio = False,row=1,col=1,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     """ plots Etot normalized to Einc histogram """
     EMDs={}
@@ -167,14 +172,10 @@ def getEMD(dist1, dist2):
     return emd_score
 
 
-def write_dict_to_txt(dictionary, filename):
-    # helper function to write a dictionary to a .txt file
-    with open(filename, 'w') as file:
-        for key, value in dictionary.items():
-            file.write(f"{key}: {value}\n")
+
             
             
-def plot_sparsity_group(list_hlfs, dataset,output_dir, particle, model_names, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
+def plot_sparsity_group(list_hlfs, dataset,output_dir, particle, model_names, model_to_color_dict, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     fig0, ax0 = plt.subplots(row,col,figsize=(width*col,height*row),sharex=True,sharey=False)
     """
@@ -270,11 +271,11 @@ def plot_sparsity_group(list_hlfs, dataset,output_dir, particle, model_names, ra
     write_dict_to_txt(Seps,sep_file)
     plt.close()
     taskname='separation_power_sparsity'
-    plot_sep_emd(sep_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(sep_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     taskname='emd_score_sparsity'
-    plot_sep_emd(emd_file, output_dir,dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(emd_file, output_dir,dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
 
-def plot_ECEtas_group(list_hlfs, dataset,output_dir, particle, model_names, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
+def plot_ECEtas_group(list_hlfs, dataset,output_dir, particle, model_names, model_to_color_dict, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     """ plots center of energy in eta for dataset 2 and 3"""
     fig0, ax0 = plt.subplots(row,col,figsize=(width*col,height*row),sharex=True,sharey=True)
@@ -390,9 +391,9 @@ def plot_ECEtas_group(list_hlfs, dataset,output_dir, particle, model_names, rati
     plt.close()
     
     taskname='separation_power_EC_eta'
-    plot_sep_emd(sep_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(sep_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     taskname='emd_score_EC_eta'
-    plot_sep_emd(emd_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(emd_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     
     
     
@@ -472,7 +473,7 @@ def plot_ECEtas(list_hlfs, dataset,output_dir, particle, model_names, ratio = Fa
     
     
     
-def plot_ECPhis_group(list_hlfs, dataset,output_dir, particle, model_names, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
+def plot_ECPhis_group(list_hlfs, dataset,output_dir, particle, model_names, model_to_color_dict, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     """ plots center of energy in phi  for dataset 2 and 3"""
     fig0, ax0 = plt.subplots(row,col,figsize=(width*col,height*row),sharex=True,sharey=True)
@@ -577,9 +578,9 @@ def plot_ECPhis_group(list_hlfs, dataset,output_dir, particle, model_names, rati
     write_dict_to_txt(Seps,sep_file)
     plt.close()
     taskname='separation_power_EC_Phi'
-    plot_sep_emd(sep_file, output_dir,dataset,particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(sep_file, output_dir,dataset,particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     taskname='emd_score_EC_Phi'
-    plot_sep_emd(emd_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(emd_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     
     
 def plot_ECPhis(list_hlfs, dataset,output_dir, particle, model_names, ratio = False,row=2,col=2,height=6,width=8,YMAX=100,
@@ -654,7 +655,7 @@ def plot_ECPhis(list_hlfs, dataset,output_dir, particle, model_names, ratio = Fa
     write_dict_to_txt(Seps,sep_file)
     plt.close()
 
-def plot_SW_etas_group(list_hlfs, dataset,output_dir,particle, model_names, ratio = False, row=3,col=3,height=6,width=8,YMAX=100,
+def plot_SW_etas_group(list_hlfs, dataset,output_dir,particle, model_names, model_to_color_dict, ratio = False, row=3,col=3,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     """  plots shower width in eta direction for dataset 2 and 3 """
     fig0, ax0 = plt.subplots(row,col,figsize=(width*col,height*row),sharex=True,sharey=True)
@@ -765,9 +766,9 @@ def plot_SW_etas_group(list_hlfs, dataset,output_dir,particle, model_names, rati
     write_dict_to_txt(Seps,sep_file)
     plt.close()
     taskname='separation_power_SW_eta'
-    plot_sep_emd(sep_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(sep_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     taskname='emd_score_SW_eta'
-    plot_sep_emd(emd_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(emd_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     
     
 def plot_SW_Etas(list_hlfs, dataset,output_dir, particle,model_names, ratio = False,row=1,col=2,height=6,width=8,YMAX=100,
@@ -923,7 +924,7 @@ def plot_SW_Etas_pion(list_hlfs, dataset,output_dir, particle, model_names, rati
     write_dict_to_txt(Seps,sep_file)
     plt.close()
 
-def plot_sep_emd(filename, output_dir, dataset, particle, width=7, height=5, taskname='separation_power'):
+def plot_sep_emd(filename, output_dir, dataset, particle, model_to_color_dict, width=7, height=5, taskname='separation_power'):
     """
     Plots separation power or EMD score for any number of models.
     """
@@ -1062,7 +1063,7 @@ def plot_SW_Phis(list_hlfs, dataset,output_dir, particle, model_names, ratio = F
     plt.close()
     
 
-def plot_SW_Phis_group(list_hlfs, dataset,output_dir, particle,model_names, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
+def plot_SW_Phis_group(list_hlfs, dataset,output_dir, particle,model_names, model_to_color_dict, ratio = False,row=3,col=3,height=6,width=8,YMAX=100,
                    LEGEND_SIZE=24,XLABEL_SIZE=36,YLABEL_SIZE=36,TITLE_SIZE=48,XTICK_SIZE=30,YTICK_SIZE=30):
     
     """ plots shower width in phi direction for dataset 2 and 3 """
@@ -1173,9 +1174,107 @@ def plot_SW_Phis_group(list_hlfs, dataset,output_dir, particle,model_names, rati
     write_dict_to_txt(Seps,sep_file)
     plt.close()
     taskname='separation_power_SW_phi'
-    plot_sep_emd(sep_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(sep_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
     taskname='emd_score_SW_phi'
-    plot_sep_emd(emd_file, output_dir, dataset, particle,width=7,height=5,taskname=taskname)
+    plot_sep_emd(emd_file, output_dir, dataset, particle,model_to_color_dict,width=7,height=5,taskname=taskname)
 
 
     
+
+def plot_EC_group(list_hlfs, dataset, output_dir, particle, model_names, mode='eta', ratio=False, row=3, col=3, height=6, width=8, YMAX=100,
+                   LEGEND_SIZE=24, XLABEL_SIZE=36, YLABEL_SIZE=36, TITLE_SIZE=48, XTICK_SIZE=30, YTICK_SIZE=30):
+    """Plots center of energy in eta or phi for the given dataset."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+
+    get_EC = lambda obj: obj.GetECEtas() if mode == 'eta' else obj.GetECPhis()
+    fig0, ax0 = plt.subplots(row, col, figsize=(width * col, height * row), sharex=True, sharey=True)
+    
+    if ratio:
+        fig1, ax1 = plt.subplots(row, col, figsize=(width * col, height * row))
+
+    EMDs, Seps = {}, {}
+    legend_names = ['Geant4']
+    gkeys = [[i + j for j in range(5)] for i in range(0, 45, 5)]
+    
+    for out_idx, keys in enumerate(gkeys):
+        lim = (-45., 45.) if dataset in ['2', '3'] else (-100., 100.)
+        bins = np.linspace(*lim, 101)
+        g_index = model_names.index('Geant4')
+        reference_class = list_hlfs[g_index]
+
+        shape_a = get_EC(reference_class)[0].shape[0]
+        selected_ref = [get_EC(reference_class)[i].reshape(shape_a, 1) for i in keys]
+        combined_ref = np.concatenate(selected_ref, axis=1)
+        mean_ref = np.mean(combined_ref, axis=1, keepdims=True)
+        
+        main_label = model_names[g_index] if out_idx == 0 else None
+        counts_ref, _, _ = ax0[out_idx // col][out_idx % col].hist(mean_ref, bins=bins, color=model_to_color_dict[model_names[g_index]],
+                                                                   label=main_label, density=True, histtype='step',
+                                                                   alpha=1.0, linewidth=3.)
+
+        for i, hlf in enumerate(list_hlfs):
+            if hlf is None or g_index == i:
+                continue
+
+            legend_names.append(model_names[i])
+            shape_a = get_EC(hlf)[0].shape[0]
+            selected_data = [get_EC(hlf)[j].reshape(shape_a, 1) for j in keys]
+            combined_data = np.concatenate(selected_data, axis=1)
+            mean_data = np.mean(combined_data, axis=1, keepdims=True)
+
+            sub_label = model_names[i] if out_idx == 0 else None
+            counts_data, _, _ = ax0[out_idx // col][out_idx % col].hist(mean_data, label=sub_label, bins=bins,
+                                                                        color=model_to_color_dict[model_names[i]],
+                                                                        histtype='step', linewidth=3., alpha=0.8, density=True)
+            
+            emd_score = getEMD(counts_ref, counts_data)
+            EMDs[f"{model_names[i]}_{keys[0]} to {keys[4]}"] = emd_score
+
+            seps = _separation_power(counts_ref, counts_data, bins)
+            Seps[f"{model_names[i]}_{keys[0]} to {keys[4]}"] = seps
+
+            if ratio:
+                eps = 1e-8
+                h_ratio = 100. * (counts_data - counts_ref) / (counts_ref + eps)
+
+                ax1[out_idx // col][out_idx % col].axhline(y=0.0, color='black', linestyle='-', linewidth=2)
+                ax1[out_idx // col][out_idx % col].axhline(y=10, color='gray', linestyle='--', linewidth=2)
+                ax1[out_idx // col][out_idx % col].axhline(y=-10, color='gray', linestyle='--', linewidth=2)
+                xaxis = [(bins[i] + bins[i+1]) / 2.0 for i in range(len(bins) - 1)]
+                ax1[out_idx // col][out_idx % col].plot(xaxis, h_ratio, color=model_to_color_dict[model_names[i]],
+                                                        linestyle='-', linewidth=3)
+                ax1[out_idx // col][out_idx % col].set_ylabel('Diff. (%)', fontsize=YLABEL_SIZE)
+                ax1[out_idx // col][out_idx % col].set_ylim([-50, 50])
+
+        cur_ylabel = "A.U." if out_idx % col == 0 else ''
+        ax0[out_idx // col][out_idx % col].set_ylabel(cur_ylabel, fontsize=YLABEL_SIZE)
+        ax0[out_idx // col][out_idx % col].set_xlabel(f"Layer {keys[0]} - {keys[4]}", fontsize=XLABEL_SIZE)
+        ax0[out_idx // col][out_idx % col].set_ylim([None, YMAX])
+        ax0[out_idx // col][out_idx % col].set_yscale('log')
+        ax0[out_idx // col][out_idx % col].margins(0.05, 0.5)
+        ax0[out_idx // col][out_idx % col].tick_params(axis='x', labelsize=XTICK_SIZE)
+        ax0[out_idx // col][out_idx % col].tick_params(axis='y', labelsize=YTICK_SIZE)
+
+    fig0.tight_layout()
+    fig0.legend(legend_names[:len(model_names)], fontsize=LEGEND_SIZE, loc='upper center', bbox_to_anchor=[0.5, 1.06],
+                ncol=4, borderpad=0.1, labelspacing=0.1, handlelength=1.0, handleheight=0.5,
+                handletextpad=0.2, borderaxespad=0.2, columnspacing=0.2)
+
+    filename0 = os.path.join(output_dir, f'EC_{mode}_dataset_{dataset}_particle_{particle}.pdf')
+    fig0.savefig(filename0, dpi=350, bbox_inches='tight')
+
+    if ratio:
+        fig1.tight_layout()
+        filename1 = os.path.join(output_dir, f'EC_{mode}_dataset_{dataset}_particle_{particle}_diff.pdf')
+        fig1.savefig(filename1, dpi=300)
+
+    emd_file = os.path.join(output_dir, f"emd_EC_{mode}_dataset_{dataset}_particle_{particle}.txt")
+    write_dict_to_txt(EMDs, emd_file)
+    sep_file = os.path.join(output_dir, f"separation_EC_{mode}_dataset_{dataset}_particle_{particle}.txt")
+    write_dict_to_txt(Seps, sep_file)
+
+    plot_sep_emd(sep_file, output_dir, dataset, particle,model_to_color_dict, width=7, height=5, taskname=f'separation_power_EC_{mode}')
+    plot_sep_emd(emd_file, output_dir, dataset, particle,model_to_color_dict, width=7, height=5, taskname=f'emd_score_EC_{mode}')
+    plt.close()
