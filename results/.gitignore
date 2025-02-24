@@ -1,9 +1,0 @@
-# Ignore Jupyter checkpoints
-**/.ipynb_checkpoints/
-
-# Ignore all files in the results directory
-results/*
-
-# Ignore all .txt and .pdf files globally
-*.txt
-*.pdf
