@@ -7,35 +7,8 @@ import seaborn as sns
 import argparse
 from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
+from utils import *
 
-#parsing arguments--->
-parser = argparse.ArgumentParser(description=('Evaluate calorimeter showers of the '+\
-                                              'Fast Calorimeter Challenge 2022.'))
-
-
-parser.add_argument('--dataset_path', '-dp', default='/project/bi_dsc_community/calorimeter/calorimeter_evaluation_data/dataset_2',
-                    help='Name of the directory to be evaluated.')
-
-parser.add_argument('--mode', '-m', default='voxel',choices=['voxel','layer','group'],
-                    help=('how the correlations will be computed.' ))
-
-parser.add_argument('--dataset', '-d', choices=['1-photons', '1-pions', '2', '3'],
-                    help='Which dataset is evaluated.')
-parser.add_argument('--output_dir','-o', default='evaluation_results/',
-                    help='Where to store evaluation output files (plots and scores).')
-parser.add_argument('--plot','-p', default='bar_plot',
-                    help='What type of plotting. options are heatmap and bar_plot')
-
-def file_read(file_name):
-    """
-    argument: file name of the generated and reference data
-    returns incident energy and showers.
-    """
-    with h5py.File(file_name, "r") as h5f:
-        e = h5f['incident_energies'][::].astype(np.float32)  
-        shower = h5f['showers'][::].astype(np.float32)
-        
-    return e, shower
 
 def grouping_data(data):
     """
@@ -151,23 +124,6 @@ def generate_group_correlation_matrices(data):
     return np.array(correlation_matrices)
 
 
-def extract_model_names(evaluate_files_list):
-    """
-    A helper function to read the file name. Remember samples are saved in a pattern of 
-    'dataset_X_PARTICLE_MODEL.h5' or 'dataset_X_PARTICLE_MODEL.hdf5'
-    This function will find out the available types of model. Make sure you save the Reference data as 
-    'dataset_2_electron_Geant4.h5'
-    
-    """
-    model_names = []
-    for name in evaluate_files_list:
-        m_name = name.split('/')[-1].split('.')[0].split('_')[-1]
-        if m_name=='Geant4':
-            idx=len(model_names)
-        model_names.append(m_name)
-
-    return model_names, idx
-
 def calculate_frob_norm(corr_geant, corr_gen):
     """
     computing frobenius norm between two numpy array manually.
@@ -229,13 +185,13 @@ def generate_correlation_matrices(data):
     return np.array(correlation_matrices)
 
 
-def plot_frob_norm(frobs,name,model_names,output_dir,mode):
+def plot_frob_norm(frobs,name,model_names,output_dir,mode, model_to_color_dict):
     
-
+    colors = [model_to_color_dict.get(model, 'skyblue') for model in model_names]
     # Plotting frobenius norm as a bar_plot
     plt.figure(figsize=(8, 6))
-    plt.bar(model_names, frobs, color='skyblue', edgecolor='black')
-
+    plt.bar(model_names, frobs, color=colors, edgecolor='black')
+    
     # Customize the plot
     plt.xlabel("Models", fontsize=12)
     plt.ylabel("Frobenius Norm with Geant4", fontsize=12)
@@ -250,7 +206,7 @@ def plot_frob_norm(frobs,name,model_names,output_dir,mode):
     plt.savefig(save_path)
    
     
-def draw_plots(correlations,g_idx,name,model_names,out_dir,mode):
+def draw_plots(correlations,g_idx,name,model_names,out_dir,mode,model_to_color_dict):
     frobs=[]
     re_models=[]
     corr_g=correlations[g_idx]
@@ -274,11 +230,11 @@ def draw_plots(correlations,g_idx,name,model_names,out_dir,mode):
             f=calculate_frob_norm(corr_g, corr)
             frobs.append(f)
             re_models.append(model_names[i])
-    plot_frob_norm(frobs,name, re_models,out_dir,mode)
+    plot_frob_norm(frobs,name, re_models,out_dir,mode,model_to_color_dict)
 
     # else:
     #     print("will be updated later!")
-def calc_CFD(Showers, model_names, out_dir,dataset):
+def calc_CFD(Showers, model_names, out_dir,dataset,model_to_color_dict):
     
     g_idx=model_names.index('Geant4')
     if dataset==2:
@@ -296,7 +252,7 @@ def calc_CFD(Showers, model_names, out_dir,dataset):
     for S in Showers:
         correlations.append(generate_correlation_matrices(S.reshape(shape)))
     fileName=str(dataset)+'_'+mode+'.pdf'
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
+    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode,model_to_color_dict)
 
     mode='layer'
     ## looking at the correlation between the layer i and layer i+1, considering their layer_sum
@@ -306,7 +262,7 @@ def calc_CFD(Showers, model_names, out_dir,dataset):
         corr,_=calculateCorrelation(summ)
         correlations.append(corr)
     fileName=str(dataset)+'_'+mode+'.pdf'    
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
+    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode,model_to_color_dict)
 
     mode='group'
     ## First create a group of layers by combining 5 consecutive layers, then sum along the axis of angular bins  and
@@ -317,81 +273,12 @@ def calc_CFD(Showers, model_names, out_dir,dataset):
         data=grouping_data(S.reshape(shape))
         correlations.append(generate_group_correlation_matrices(data))
     fileName=str(dataset)+'_'+mode+'.pdf'   
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
+    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode,model_to_color_dict)
 
   
 
 
-def gen_CFD(evaluate_path, dataset,out_dir):
-    
-    #locating all the generated and reference files in the dataset_path
-    evaluate_files_list = [
-    str(p) for ext in ('*.h5', '*.hdf5') for p in Path(evaluate_path).rglob(ext)
-    ]
-    
-    #get the model_names list and the index of Geant4 data in the list
-    model_names,g_idx = extract_model_names(evaluate_files_list)
-    
-    Energies=[]
-    Showers=[]
-    if dataset==2:
-        shape=[-1,45,16,9]
-    elif dataset==3:
-        shape=[-1,45,50,18]
-    else:
-        print('Not implemented yet for dataset 1 photon and pion')
-    #reading the incident energies and showers for further analysis.        
-    for eval_file in evaluate_files_list:
-        
-        E, S=file_read(eval_file)
-        Energies.append(E)
-        S=S.reshape(shape)
-        Showers.append(S)
-        
-        
-    mode='voxel'
-    ## looking at the correlation between the voxel j of layer i and the voxel j of layer i+1
-    correlations=[]
 
-    for S in Showers:
-        correlations.append(generate_correlation_matrices(S))
-    fileName=str(dataset)+'_'+mode+'.pdf'
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
-            
-    mode='layer'
-    ## looking at the correlation between the layer i and layer i+1, considering their layer_sum
-    correlations=[]
-    for S in Showers:
-        summ=S.sum(axis=(2,3))
-        corr,_=calculateCorrelation(summ)
-        correlations.append(corr)
-    fileName=str(dataset)+'_'+mode+'.pdf'    
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
-        
-    mode='group'
-    ## First create a group of layers by combining 5 consecutive layers, then sum along the axis of angular bins and
-    ## finally compute correlation between group i's radial_bin j with group i+1's radial_bin j
-    correlations=[]
-
-    for S in Showers:
-        data=grouping_data(S)
-        correlations.append(generate_group_correlation_matrices(data))
-    fileName=str(dataset)+'_'+mode+'.pdf'   
-    draw_plots(correlations,g_idx,fileName,model_names,out_dir,mode)
-        
-        
-    
-            
-        
-if __name__ == '__main__':
-    args = parser.parse_args()
-
-    if not os.path.isdir(args.output_dir):
-        os.makedirs(args.output_dir)
-                          
-    gen_CFD(args.dataset_path,args.dataset,args.output_dir)
-    
-        
         
         
         
